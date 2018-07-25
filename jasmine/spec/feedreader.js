@@ -11,14 +11,18 @@ $(function() {
      * 都是关于 Rss 源的定义的，也就是应用中的 allFeeds 变量。
     */
     describe('RSS Feeds', function() {
+        function notEmpty(name) {
+            // 将相似的代码都移入到该方法中，避免重复编写相同代码。
+            expect(name).toBeDefined();
+            expect(name.length).not.toBe(0);
+         }
         /* 这是我们的第一个测试 - 它用来保证 allFeeds 变量被定义了而且
          * 不是空的。在你开始做这个项目剩下的工作之前最好实验一下这个测试
          * 比如你把 app.js 里面的 allFeeds 变量变成一个空的数组然后刷新
          * 页面看看会发生什么。
         */
         it('are defined', function() {
-            expect(allFeeds).toBeDefined();
-            expect(allFeeds.length).not.toBe(0);
+            notEmpty(allFeeds);
         });
 
 
@@ -27,8 +31,7 @@ $(function() {
          */
         it('所有的源有链接字段而且链接不是空的', function() {
             for(let item of allFeeds) {
-                expect(item.url).toBeDefined();
-                expect(item.url.length).not.toBe(0);
+                notEmpty(item.url);
             }
             
         })
@@ -38,8 +41,7 @@ $(function() {
          */
         it('所有的源有名字字段而且不是空的', function() {
             for(let item of allFeeds) {
-                expect(item.name).toBeDefined();
-                expect(item.name.length).not.toBe(0);
+                notEmpty(item.name);
             }
             
         })
@@ -53,7 +55,7 @@ $(function() {
             * 来搞清楚我们是怎么实现隐藏/展示菜单元素的。
             */
             it('菜单元素默认是隐藏的', function() {
-                expect($('body').attr('class')).toBe('menu-hidden');
+                expect($('body').hasClass('menu-hidden')).toBe(true);
             })
 
             /* TODO:
@@ -63,9 +65,9 @@ $(function() {
             */
             it('当菜单图标被点击的时候菜单会切换可见状态', function() {
                 $('.menu-icon-link').trigger('click');
-                expect($('body').attr('class')).toBe('');
+                expect($('body').hasClass('menu-hidden')).toBe(false);
                 $('.menu-icon-link').trigger('click');
-                expect($('body').attr('class')).toBe('menu-hidden');
+                expect($('body').hasClass('menu-hidden')).toBe(true);
             })
         })
         
@@ -82,13 +84,10 @@ $(function() {
             * 和异步的 done() 函数。
             */
            beforeEach(function(done) {
-            loadFeed(0, function() {
-                done();
-            });
+            loadFeed(0, done);
            })
-            it('loadFeed 函数被调用而且工作正常', function(done) {
+            it('loadFeed 函数被调用而且工作正常', function() {
                 expect($('.feed').find($('.entry')).length > 0).toBe(true);
-                done();
             })
         })
         
@@ -104,24 +103,22 @@ $(function() {
 
             beforeEach(function(done) {
                 // 加载第一个源
-                loadFeed(0, function() {
-                    $('.feed .entry h2').each((index, item) => {
-                        container1 += item.innerText;
-                    });
-                    done();
-                })
-                // 加载一个新源
                 loadFeed(1, function() {
                     $('.feed .entry h2').each((index, item) => {
                         container1 += item.innerText;
                     });
-                    done();
+                    // 加载一个新源
+                    loadFeed(0, function() {
+                        $('.feed .entry h2').each((index, item) => {
+                            container2 += item.innerText;
+                        });
+                        done();
+                    })
                 })
             })
 
-            it('loadFeed 函数加载一个新源的时候内容会真的改变', function(done) {
+            it('loadFeed 函数加载一个新源的时候内容会真的改变', function() {
                 expect(container1 === container2).toBe(false);
-                done();
             })
         })
         
